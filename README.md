@@ -69,13 +69,25 @@ Default value: `[]`
 A string or an array of files (or globs) from which load helpers
 
 #### options.data
-Type: `String` or `Object`
+Type: `String`, `Object` or `Array`
 Default value: `{}`
 
 If you provide a String, it must be a path to a JSON or YAML file, from which
  load data to pass to Handlebars.
  
 You can also pass a plain Object which will be used instead.
+
+Finally, you can also pass an Array of paths which can include globs as well. Note that,
+in the event of loading more than one data file, the data will be namespaced with the name of the file. For example. Given this two files being loaded, with the same data:
+
+  `data/global.json`
+  `data/mymodule.json`
+
+  {
+    'name' : 'My name'
+  }
+  
+The data from `global` would be in `{{ global.name }}`
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).

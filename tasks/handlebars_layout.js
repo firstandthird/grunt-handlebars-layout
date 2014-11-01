@@ -22,6 +22,23 @@ module.exports = function(grunt) {
       data: {}
     });
 
+    var getFileName = function (filePath) {
+      return filePath.split('/').pop().split('.').shift();
+    };
+
+    var readAndParseFile = function (filePath) {
+      var method = filePath.indexOf('.json') > -1 ? 'readJSON' : 'readYAML';
+      var result = {};
+
+      if (grunt.file.exists(filePath)) {
+        result = grunt.file[method](filePath);
+      }
+
+      return result;
+    };
+
+    var HandlebarsData = {};
+
     // Normalizing basePath. Checking if it's correct and if it's not, falling
     // back to CWD again
     if (!grunt.file.isDir(options.basePath)) {
@@ -44,20 +61,22 @@ module.exports = function(grunt) {
     }
 
     // Reading data
-    if (grunt.util.kindOf(options.data) === 'string') { // We assume it's a path
-      var method = options.data.indexOf('.json') > -1 ? 'readJSON' : 'readYAML';
-
-      try {
-        if (grunt.file.exists(options.data)) {
-          options.data = grunt.file[method](options.data);
+    if (Array.isArray(options.data) || grunt.util.kindOf(options.data) === 'string') {
+      var dataFiles = grunt.file.expand({ filter: 'isFile' }, options.data);
+      
+      if (dataFiles) {
+        if (dataFiles.length > 1) {
+          dataFiles.forEach(function(file){
+            HandlebarsData[getFileName(file)] = readAndParseFile(file);
+          });
         }
         else {
-          throw new Error();
+          HandlebarsData = readAndParseFile(dataFiles[0]);
         }
       }
-      catch (e){
-        grunt.fatal('Couldn\'t find the specified file to parse data from');
-      }
+    }
+    else if (options.data) {
+      HandlebarsData = options.data;
     }
 
     // Adding custom helpers
@@ -66,9 +85,7 @@ module.exports = function(grunt) {
 
       if (helpers) {
         helpers.forEach(function (helper) {
-          var helperName = helper.split('/').pop().split('.').shift();
-
-          Handlebars.registerHelper(helperName, require('../' + helper));
+          Handlebars.registerHelper(getFileName(helper), require('../' + helper));
         });
       }
     }
@@ -83,7 +100,7 @@ module.exports = function(grunt) {
           return true;
         }
       }).map(function(filepath) {
-        return Handlebars.compile(grunt.file.read(filepath))(options.data);
+        return Handlebars.compile(grunt.file.read(filepath))(HandlebarsData);
       }).join(grunt.util.normalizelf('\n'));
 
       grunt.file.write(f.dest, src);
