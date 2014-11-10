@@ -1,7 +1,7 @@
 {
   "name": "grunt-handlebars-layout",
   "description": "Parse HTML files as Handlebars templates using Handlebars layout.",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "homepage": "https://github.com/firstandthird/grunt-handlebars-layout",
   "repository": {
     "type": "git",
