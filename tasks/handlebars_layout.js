@@ -50,7 +50,7 @@ module.exports = function(grunt) {
     if (options.partials.length) {
       var partials = grunt.file.expand({ filter: 'isFile' } ,options.partials);
 
-      if (partials) {
+      if (partials.length) {
         partials.forEach(function (partial) {
           var partialName = partial.replace(options.basePath, '').split('.').shift();
           grunt.verbose.writeln('Registering partial with name ' + partialName);
@@ -64,7 +64,7 @@ module.exports = function(grunt) {
     if (Array.isArray(options.data) || grunt.util.kindOf(options.data) === 'string') {
       var dataFiles = grunt.file.expand({ filter: 'isFile' }, options.data);
       
-      if (dataFiles) {
+      if (dataFiles.length) {
         if (dataFiles.length > 1) {
           dataFiles.forEach(function(file){
             HandlebarsData[getFileName(file)] = readAndParseFile(file);
@@ -83,7 +83,7 @@ module.exports = function(grunt) {
     if (options.helpers.length) {
       var helpers = grunt.file.expand({ filter: 'isFile' }, options.helpers);
 
-      if (helpers) {
+      if (helpers.length) {
         helpers.forEach(function (helper) {
           Handlebars.registerHelper(getFileName(helper), require('../' + helper));
         });
